@@ -1,0 +1,165 @@
+@model IEnumerable<VulneraScan.Models.ScanTarget>
+
+@{
+    ViewData["Title"] = "My Scans";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-list-ul me-2"></i>Scan History</h2>
+            <p class="text-muted mb-0">Review submitted targets and their current scan status.</p>
+        </div>
+        <a href="@Url.Action("Index", "Scan")" class="btn btn-primary">
+            <i class="bi bi-search me-2"></i>New Scan
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small" id="scans-row-count"></span>
+                    <input type="text" id="scans-search" class="form-control form-control-sm w-auto" placeholder="Search scans…" style="min-width:220px;">
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0" id="scans-table">
+                        <thead>
+                            <tr>
+                                <th>Target</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Owner</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scans-tbody">
+                            @foreach (var scan in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@scan.TargetUrl</div>
+                                        @if (!string.IsNullOrWhiteSpace(scan.Domain) || !string.IsNullOrWhiteSpace(scan.IpAddress))
+                                        {
+                                            <small class="text-muted">
+                                                @if (!string.IsNullOrWhiteSpace(scan.Domain))
+                                                {
+                                                    <span>Domain: @scan.Domain</span>
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(scan.IpAddress))
+                                                {
+                                                    <span>@(string.IsNullOrWhiteSpace(scan.Domain) ? "IP: " : " | IP: ")@scan.IpAddress</span>
+                                                }
+                                            </small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge text-@(scan.ScanStatus == ScanStatus.Completed ? "success" : scan.ScanStatus == ScanStatus.Failed ? "danger" : scan.ScanStatus == ScanStatus.InProgress ? "primary" : "secondary")">
+                                            @scan.ScanStatus
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small>@scan.CreatedAt.ToString("g")</small>
+                                    </td>
+                                    <td>
+                                        <small>@(scan.User?.FullName ?? scan.User?.UserName ?? scan.UserId)</small>
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("Results", "Scan", new { id = scan.Id })" class="btn btn-sm btn-info">
+                                            <i class="bi bi-eye me-1"></i>
+                                        </a>
+                                        <form method="post" asp-action="Archive" asp-controller="Scan" asp-route-id="@scan.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to archive this record?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-warning" title="Archive">
+                                                <i class="bi bi-archive me-1"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div id="scans-pagination" class="d-flex justify-content-center mt-3"></div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No scans found. <a href="@Url.Action("Index", "Scan")">Start a new scan</a> to begin.
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    'use strict';
+
+    function initPagination(tbodyId, paginationId, searchId, countId, pageSize) {
+        const tbody      = document.getElementById(tbodyId);
+        const pagination = document.getElementById(paginationId);
+        const searchEl   = document.getElementById(searchId);
+        const countEl    = document.getElementById(countId);
+        if (!tbody || !pagination) return;
+
+        let currentPage = 1;
+
+        function filterRows() {
+            const q = searchEl ? searchEl.value.toLowerCase().trim() : '';
+            Array.from(tbody.rows).forEach(row => {
+                row.dataset.matches = (!q || row.textContent.toLowerCase().includes(q)) ? '1' : '0';
+            });
+        }
+
+        function render() {
+            filterRows();
+            const rows  = Array.from(tbody.rows).filter(r => r.dataset.matches !== '0');
+            const total = rows.length;
+            const pages = Math.max(1, Math.ceil(total / pageSize));
+            currentPage = Math.min(currentPage, pages);
+            const start = (currentPage - 1) * pageSize;
+            const end   = start + pageSize;
+
+            Array.from(tbody.rows).forEach(row => {
+                row.style.display = (row.dataset.matches !== '0' && rows.indexOf(row) >= start && rows.indexOf(row) < end)
+                    ? '' : 'none';
+            });
+
+            if (countEl) countEl.textContent = total > 0
+                ? `Showing ${Math.min(start + 1, total)}–${Math.min(end, total)} of ${total}`
+                : 'No results';
+
+            buildPager(pages);
+        }
+
+        function buildPager(pages) {
+            pagination.innerHTML = '';
+            if (pages <= 1) return;
+            const ul = document.createElement('ul');
+            ul.className = 'pagination pagination-sm mb-0';
+            const mkLi = (label, page, disabled, active) => {
+                const li = document.createElement('li');
+                li.className = `page-item${disabled ? ' disabled' : ''}${active ? ' active' : ''}`;
+                const a = document.createElement('a');
+                a.className = 'page-link'; a.href = '#'; a.innerHTML = label;
+                if (!disabled) a.addEventListener('click', e => { e.preventDefault(); currentPage = page; render(); });
+                li.appendChild(a); ul.appendChild(li);
+            };
+            mkLi('&laquo;', currentPage - 1, currentPage === 1, false);
+            for (let i = 1; i <= pages; i++) mkLi(i, i, false, i === currentPage);
+            mkLi('&raquo;', currentPage + 1, currentPage === pages, false);
+            pagination.appendChild(ul);
+        }
+
+        if (searchEl) searchEl.addEventListener('input', () => { currentPage = 1; render(); });
+        render();
+    }
+
+    initPagination('scans-tbody', 'scans-pagination', 'scans-search', 'scans-row-count', 10);
+}());
+</script>
+}

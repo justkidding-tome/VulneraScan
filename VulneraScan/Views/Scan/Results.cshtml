@@ -1,0 +1,155 @@
+@model VulneraScan.ViewModels.Scan.ScanResultViewModel
+
+@{
+    ViewData["Title"] = "Scan Results";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+        <div>
+            <h2 class="mb-1">Scan Results</h2>
+            <p class="text-muted mb-0">Target: @(Model.ScanTarget?.TargetUrl ?? "Unknown")</p>
+        </div>
+        <a asp-action="List" asp-controller="Scan" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Scan History
+        </a>
+    </div>
+
+    @if (Model.ScanTarget?.ScanStatus != VulneraScan.Models.Enums.ScanStatus.Completed)
+    {
+        <div class="alert alert-info" role="alert">
+            Scan is @(Model.ScanTarget?.ScanStatus.ToString() ?? "Unknown"). Results will populate as soon as the background scan completes.
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Scan Summary</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-5">Status</dt>
+                        <dd class="col-7">@(Model.ScanTarget?.ScanStatus.ToString() ?? "Unknown")</dd>
+
+                        <dt class="col-5">Started</dt>
+                        <dd class="col-7">@(Model.ScanTarget?.StartedAt?.ToString("g") ?? "Pending")</dd>
+
+                        <dt class="col-5">Completed</dt>
+                        <dd class="col-7">@(Model.ScanTarget?.CompletedAt?.ToString("g") ?? "In progress")</dd>
+
+                        <dt class="col-5">Duration</dt>
+                        <dd class="col-7">@(Model.ScanDuration.HasValue ? $"{Model.ScanDuration.Value.TotalMinutes:F1} min" : "Not available")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Vulnerability Severity</h5>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <div class="fs-2 fw-bold text-danger">@Model.HighCount</div>
+                                <div>High</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <div class="fs-2 fw-bold text-warning">@Model.MediumCount</div>
+                                <div>Medium</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <div class="fs-2 fw-bold text-info">@Model.LowCount</div>
+                                <div>Low</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Discovered Services</h5>
+                    @if (Model.DiscoveredServices?.Any() == true)
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var service in Model.DiscoveredServices)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@service.ServiceName</span>
+                                    <span class="text-muted">Port @service.Port</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No services have been discovered yet.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Vulnerabilities</h5>
+                    @if (Model.Vulnerabilities?.Any() == true)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Severity</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var vulnerability in Model.Vulnerabilities)
+                                    {
+                                        <tr>
+                                            <td>@vulnerability.Name</td>
+                                            <td>@vulnerability.SeverityLevel</td>
+                                            <td>@vulnerability.Category</td>
+                                            <td>@vulnerability.Description</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No vulnerabilities have been recorded yet.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Report</h5>
+                    @if (Model.Report != null)
+                    {
+                        <dl class="row mb-0">
+                            <dt class="col-4">Risk Score</dt>
+                            <dd class="col-8">@Model.Report.RiskScore</dd>
+
+                            <dt class="col-4">Risk Label</dt>
+                            <dd class="col-8">@Model.Report.RiskLabel</dd>
+                        </dl>
+                        <hr />
+                        <p class="mb-0">@Model.Report.Summary</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">Report has not been generated yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

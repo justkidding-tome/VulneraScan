@@ -1,0 +1,126 @@
+@model AuditLogListViewModel
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Audit Log </h1>
+        <p class="text-muted mb-0">Security-sensitive activity recorded across the portal.</p>
+    </div>
+    <a asp-action="Users" class="btn btn-outline-primary">Back to Users</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted small" id="audit-row-count"></span>
+            <input type="text" id="audit-search" class="form-control form-control-sm w-auto" placeholder="Search logs…" style="min-width:220px;">
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0" id="audit-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody id="audit-tbody">
+                    @if (Model.Logs.Any())
+                    {
+                        foreach (var log in Model.Logs)
+                        {
+                            <tr>
+                                <td>@log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>@(log.User?.FullName ?? log.User?.Email ?? log.UserId ?? "System")</td>
+                                <td><span class="badge bg-secondary">@log.Action</span></td>
+                                <td>@log.Details</td>
+                                <td>@log.IpAddress</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">No audit entries found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div id="audit-pagination" class="d-flex justify-content-center mt-3"></div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    'use strict';
+
+    function initPagination(tbodyId, paginationId, searchId, countId, pageSize) {
+        const tbody      = document.getElementById(tbodyId);
+        const pagination = document.getElementById(paginationId);
+        const searchEl   = document.getElementById(searchId);
+        const countEl    = document.getElementById(countId);
+        if (!tbody || !pagination) return;
+
+        let currentPage = 1;
+
+        function filterRows() {
+            const q = searchEl ? searchEl.value.toLowerCase().trim() : '';
+            Array.from(tbody.rows).forEach(row => {
+                row.dataset.matches = (!q || row.textContent.toLowerCase().includes(q)) ? '1' : '0';
+            });
+        }
+
+        function render() {
+            filterRows();
+            const rows  = Array.from(tbody.rows).filter(r => r.dataset.matches !== '0');
+            const total = rows.length;
+            const pages = Math.max(1, Math.ceil(total / pageSize));
+            currentPage = Math.min(currentPage, pages);
+            const start = (currentPage - 1) * pageSize;
+            const end   = start + pageSize;
+
+            Array.from(tbody.rows).forEach(row => {
+                row.style.display = (row.dataset.matches !== '0' && rows.indexOf(row) >= start && rows.indexOf(row) < end)
+                    ? '' : 'none';
+            });
+
+            if (countEl) countEl.textContent = total > 0
+                ? `Showing ${Math.min(start + 1, total)}–${Math.min(end, total)} of ${total}`
+                : 'No results';
+
+            buildPager(pages);
+        }
+
+        function buildPager(pages) {
+            pagination.innerHTML = '';
+            if (pages <= 1) return;
+            const ul = document.createElement('ul');
+            ul.className = 'pagination pagination-sm mb-0';
+            const mkLi = (label, page, disabled, active) => {
+                const li = document.createElement('li');
+                li.className = `page-item${disabled ? ' disabled' : ''}${active ? ' active' : ''}`;
+                const a = document.createElement('a');
+                a.className = 'page-link'; a.href = '#'; a.innerHTML = label;
+                if (!disabled) a.addEventListener('click', e => { e.preventDefault(); currentPage = page; render(); });
+                li.appendChild(a); ul.appendChild(li);
+            };
+            mkLi('&laquo;', currentPage - 1, currentPage === 1, false);
+            for (let i = 1; i <= pages; i++) mkLi(i, i, false, i === currentPage);
+            mkLi('&raquo;', currentPage + 1, currentPage === pages, false);
+            pagination.appendChild(ul);
+        }
+
+        if (searchEl) searchEl.addEventListener('input', () => { currentPage = 1; render(); });
+        render();
+    }
+
+    initPagination('audit-tbody', 'audit-pagination', 'audit-search', 'audit-row-count', 25);
+}());
+</script>
+}

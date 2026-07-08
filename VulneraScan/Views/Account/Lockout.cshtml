@@ -1,0 +1,167 @@
+@{
+    ViewData["Title"] = "Account Locked";
+    var email = ViewData["Email"] as string ?? "your account";
+    var lockoutEnd = ViewData["LockoutEnd"] as DateTimeOffset?;
+    var lockoutReason = ViewData["LockoutReason"] as string ?? "Account locked due to multiple failed login attempts";
+
+    // Calculate remaining lockout time
+    var remainingTime = lockoutEnd?.UtcDateTime - DateTime.UtcNow;
+    var minutesRemaining = (int?)remainingTime?.TotalMinutes ?? 0;
+    var secondsRemaining = (int?)remainingTime?.TotalSeconds % 60 ?? 0;
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-lock-fill" style="font-size: 3rem; color: #dc3545;"></i>
+                        <h3 class="card-title mt-3">Account Locked</h3>
+                    </div>
+
+                    <div class="alert alert-danger" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Your account has been temporarily locked
+                        </h5>
+                        <p class="mb-0">
+                            <strong>Reason:</strong> @lockoutReason
+                        </p>
+                    </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <p class="mb-2">
+                            <strong>What happened?</strong><br>
+                            Your account was locked after multiple failed login attempts to protect your security.
+                        </p>
+                        <p class="mb-0">
+                            <strong>This is a security feature</strong> designed to prevent unauthorized access to your account.
+                        </p>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title mb-3">
+                                <i class="bi bi-clock-history me-2"></i>Lockout Duration
+                            </h6>
+                            <p class="mb-1">
+                                <strong>Email:</strong> @email
+                            </p>
+                            @if (lockoutEnd.HasValue)
+                            {
+                                <p class="mb-1">
+                                    <strong>Locked until:</strong> @lockoutEnd.Value.ToString("g")
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Remaining time:</strong> 
+                                    <span id="lockout-timer">@minutesRemaining minute(s) and @secondsRemaining second(s)</span>
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="mb-0">
+                                    <strong>Locked until:</strong> Unknown (please contact support)
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title mb-3">
+                                <i class="bi bi-question-circle me-2"></i>How to Regain Access
+                            </h6>
+                            <div class="accordion accordion-flush" id="recoveryOptions">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWait">
+                                            <i class="bi bi-hourglass-split me-2"></i>Wait for Lockout to Expire
+                                        </button>
+                                    </h2>
+                                    <div id="collapseWait" class="accordion-collapse collapse show" data-bs-parent="#recoveryOptions">
+                                        <div class="accordion-body">
+                                            <p>Your account will automatically unlock after 15 minutes. You can then attempt to log in again with the correct credentials.</p>
+                                            <p class="text-muted mb-0"><small>Current lockout time shown above will count down automatically.</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdmin">
+                                            <i class="bi bi-envelope me-2"></i>Contact Administrator
+                                        </button>
+                                    </h2>
+                                    <div id="collapseAdmin" class="accordion-collapse collapse" data-bs-parent="#recoveryOptions">
+                                        <div class="accordion-body">
+                                            <p>If you believe this is a mistake or if you need immediate assistance, contact your system administrator to manually unlock your account.</p>
+                                            <p class="mb-0">
+                                                <strong>Administrator Contact:</strong> <a href="mailto:admin@vulnerascan.local">admin@vulnerascan.local</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePassword">
+                                            <i class="bi bi-key me-2"></i>Forgot Your Password?
+                                        </button>
+                                    </h2>
+                                    <div id="collapsePassword" class="accordion-collapse collapse" data-bs-parent="#recoveryOptions">
+                                        <div class="accordion-body">
+                                            <p>If you're unsure about your password, you can reset it after your account is unlocked. Once the lockout period expires, you'll have the option to request a password reset.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+                            <i class="bi bi-house me-2"></i>Return to Home
+                        </a>
+                    </div>
+
+                    <p class="text-muted text-center mt-3 mb-0">
+                        <small>For security purposes, your account will automatically unlock after 15 minutes of inactivity from the time of lockout.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-update the lockout timer
+        function updateLockoutTimer() {
+            const lockoutEndStr = '@(lockoutEnd?.UtcDateTime.ToString("O") ?? "")';
+            if (!lockoutEndStr) return;
+
+            const lockoutEnd = new Date(lockoutEndStr);
+            const timerSpan = document.getElementById('lockout-timer');
+
+            const updateTimer = () => {
+                const now = new Date();
+                const remaining = lockoutEnd - now;
+
+                if (remaining <= 0) {
+                    timerSpan.textContent = 'Account should now be unlocked. Please refresh and try logging in again.';
+                    timerSpan.className = 'text-success fw-bold';
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                timerSpan.textContent = minutes + ' minute(s) and ' + seconds + ' second(s)';
+            };
+
+            updateTimer(); // Initial call
+            const timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Start timer when page loads
+        document.addEventListener('DOMContentLoaded', updateLockoutTimer);
+    </script>
+}

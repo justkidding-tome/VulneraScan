@@ -1,0 +1,254 @@
+@model VulneraScan.ViewModels.Dashboard.AnalystDashboardViewModel
+
+@{
+    ViewData["Title"] = "Security Analyst Dashboard";
+}
+
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">My Dashboard</h2>
+            <p class="text-muted mb-0">Overview of personal security scans and findings.</p>
+        </div>
+        <div>
+            <a href="@Url.Action("Index", "Scan")" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="bi bi-play-circle me-2"></i>Start New Scan
+            </a>
+        </div>
+    </div>
+
+    <!-- Primary Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-xl-4">
+            <div class="card dashboard-stat-card bg-primary-subtle text-primary-emphasis">
+                <div class="card-body p-4">
+                    <div class="dashboard-stat-label">My Scans</div>
+                    <div class="dashboard-stat-value">@Model.PersonalTotalScans</div>
+                    <i class="bi bi-search dashboard-stat-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-4">
+            <div class="card dashboard-stat-card bg-info-subtle text-info-emphasis">
+                <div class="card-body p-4">
+                    <div class="dashboard-stat-label">Completed Scans</div>
+                    <div class="dashboard-stat-value">@Model.PersonalCompletedScans</div>
+                    <i class="bi bi-check-circle dashboard-stat-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-xl-4">
+            <div class="card dashboard-stat-card bg-dark-subtle text-dark-emphasis">
+                <div class="card-body p-4">
+                    <div class="dashboard-stat-label">Vulnerabilities Found</div>
+                    <div class="dashboard-stat-value">@Model.PersonalTotalVulnerabilities</div>
+                    <i class="bi bi-shield-exclamation dashboard-stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card dashboard-stat-card" style="background-color: #fef2f2;">
+                <div class="card-body p-4">
+                    <div class="dashboard-stat-label text-danger">High Risk Findings</div>
+                    <div class="dashboard-stat-value text-danger">@Model.PersonalHighRisk</div>
+                    <i class="bi bi-exclamation-octagon-fill dashboard-stat-icon text-danger"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dashboard-stat-card" style="background-color: #fffbeb;">
+                <div class="card-body p-4">
+                    <div class="dashboard-stat-label text-warning" style="color: #ea580c !important;">Medium Risk Findings</div>
+                    <div class="dashboard-stat-value" style="color: #ea580c;">@Model.PersonalMediumRisk</div>
+                    <i class="bi bi-exclamation-triangle-fill dashboard-stat-icon" style="color: #ea580c;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dashboard-stat-card" style="background-color: #f0fdf4;">
+                <div class="card-body p-4">
+                    <div class="dashboard-stat-label text-success">Low Risk Findings</div>
+                    <div class="dashboard-stat-value text-success">@Model.PersonalLowRisk</div>
+                    <i class="bi bi-check-circle-fill dashboard-stat-icon text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-header dashboard-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Recent Scans</h5>
+                    <a href="@Url.Action("List", "Scan")" class="btn btn-sm btn-light rounded-pill">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.RecentScans.Any())
+                    {
+                        <ul class="list-group list-group-flush border-0">
+                            @foreach (var scan in Model.RecentScans.Take(5))
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-4 border-bottom border-light">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark">@scan.TargetUrl</h6>
+                                        <small class="text-muted"><i class="bi bi-clock me-1"></i>@scan.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
+                                    </div>
+                                    @{
+                                        var scanStatusCss = scan.ScanStatus.ToString() switch
+                                        {
+                                            "Completed"  => "status-completed",
+                                            "InProgress" => "status-inprogress",
+                                            "Failed"     => "status-failed",
+                                            "Pending"    => "status-pending",
+                                            _            => "status-unknown"
+                                        };
+                                    }
+                                    <span class="status-text @scanStatusCss">@scan.ScanStatus</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center text-muted">
+                            <i class="bi bi-search fs-1 mb-3 d-block opacity-50"></i>
+                            <p class="mb-0">You haven't run any scans yet.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-header dashboard-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Recent Reports</h5>
+                    <a href="@Url.Action("List", "Report")" class="btn btn-sm btn-light rounded-pill">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.RecentReports.Any())
+                    {
+                        <ul class="list-group list-group-flush border-0">
+                            @foreach (var report in Model.RecentReports.Take(5))
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-4 border-bottom border-light">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark text-truncate" style="max-width: 250px;">@report.Title</h6>
+                                        <small class="text-muted"><i class="bi bi-calendar-event me-1"></i>@report.GeneratedAt.ToString("MMM dd, yyyy HH:mm")</small>
+                                    </div>
+                                    @{
+                                        var riskStatusCss = report.RiskLabel.ToString() switch
+                                        {
+                                            "High"   => "status-high",
+                                            "Medium" => "status-medium",
+                                            "Low"    => "status-low",
+                                            _        => "status-unknown"
+                                        };
+                                    }
+                                    <span class="status-text @riskStatusCss">@report.RiskLabel</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center text-muted">
+                            <i class="bi bi-file-earmark-text fs-1 mb-3 d-block opacity-50"></i>
+                            <p class="mb-0">No reports have been generated yet.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-stat-card {
+        border-radius: 1rem;
+        border: none;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .dashboard-stat-icon {
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        opacity: 0.15;
+        font-size: 5rem;
+    }
+
+    .dashboard-stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+    }
+
+    .dashboard-stat-label {
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+
+    .dashboard-card {
+        border-radius: 1rem;
+        border: none;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card-header {
+        background-color: transparent;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1.25rem 1.5rem;
+    }
+    /* Plain color-coded status text — no badge background */
+    .status-text {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .status-completed {
+        color: #16a34a;
+    }
+
+    .status-inprogress {
+        color: #d97706;
+    }
+
+    .status-failed {
+        color: #dc2626;
+    }
+
+    .status-pending {
+        color: #2563eb;
+    }
+
+    .status-high {
+        color: #dc2626;
+    }
+
+    .status-medium {
+        color: #d97706;
+    }
+
+    .status-low {
+        color: #16a34a;
+    }
+
+    .status-unknown {
+        color: #6b7280;
+    }
+</style>

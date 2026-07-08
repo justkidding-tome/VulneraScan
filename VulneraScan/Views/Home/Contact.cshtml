@@ -1,0 +1,41 @@
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<div class="container py-5">
+    <h1 class="mb-4"><i class="bi bi-envelope me-2"></i>Contact Us</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" asp-action="Contact">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input id="name" name="Name" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input id="email" name="Email" type="email" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea id="message" name="Message" class="form-control" rows="6"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card sidebar">
+                <div class="card-body">
+                    <h5>Support</h5>
+                    <p class="mb-1"><strong>Email:</strong> support@vulnerascan.local</p>
+                    <p class="mb-1"><strong>Phone:</strong> +1 (555) 123-4567</p>
+                    <p class="mb-0">We aim to respond within 2 business days.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

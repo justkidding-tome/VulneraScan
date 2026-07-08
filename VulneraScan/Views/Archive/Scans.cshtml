@@ -1,0 +1,68 @@
+@model IEnumerable<VulneraScan.Models.ScanTarget>
+
+@{
+    ViewData["Title"] = "Archived Scans";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-archive me-2"></i>Archived Scans</h2>
+            <p class="text-muted mb-0">Review and restore archived scan targets.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Archive
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Target</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Owner</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var scan in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">@scan.TargetUrl</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">Archived</span>
+                            </td>
+                            <td>
+                                <small>@scan.CreatedAt.ToString("g")</small>
+                            </td>
+                            <td>
+                                <small>@(scan.User?.FullName ?? scan.User?.UserName ?? scan.UserId)</small>
+                            </td>
+                            <td>
+                                <form method="post" asp-action="RestoreScan" asp-route-id="@scan.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to restore this record?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No archived scans found.
+        </div>
+    }
+</div>

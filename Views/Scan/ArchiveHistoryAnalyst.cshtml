@@ -1,0 +1,52 @@
+@model IEnumerable<VulneraScan.Models.ScanTarget>
+@{
+    ViewData["Title"] = "My Archived Scans";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Archived Scans (Analyst)</h1>
+        <p class="text-muted mb-0">View and restore your archived scan targets.</p>
+    </div>
+    <a asp-action="List" asp-controller="Scan" class="btn btn-outline-primary">Back to Scans</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Target</th>
+                    <th>Archived At</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var scan in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@scan.TargetUrl</td>
+                            <td>@(scan.ArchivedAt?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                            <td class="text-end">
+                                <a href="@Url.Action("Results", "Scan", new { id = scan.Id })" class="btn btn-sm btn-outline-primary me-1">View</a>
+                                <form asp-action="Restore" asp-controller="Scan" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@scan.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Restore this scan?');">Restore</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-4">No archived scans available.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,365 @@
+@{
+    ViewData["Title"] = "Enterprise Vulnerability Scanner";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/landing.css" />
+}
+
+<script>
+    // Add specific class to body for landing page styling
+    document.body.classList.add('landing-page');
+</script>
+
+<!-- Animated Background -->
+<div class="landing-bg">
+    <div class="bg-grid"></div>
+    <div class="bg-blur-circle circle-1"></div>
+    <div class="bg-blur-circle circle-2"></div>
+    <div class="bg-blur-circle circle-3"></div>
+</div>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-content text-center">
+        <div class="badge-security mb-4 fade-in-up">
+            <i class="bi bi-shield-check me-2"></i> Enterprise Security Platform
+        </div>
+        
+        <h1 class="hero-title fade-in-up" style="animation-delay: 0.1s;">
+            Secure Your Network<br />
+            <span class="text-gradient">Before Attackers Do</span>
+        </h1>
+        
+        <p class="hero-subtitle fade-in-up" style="animation-delay: 0.2s;">
+            Enterprise-grade vulnerability scanning, intelligent security analysis, automated reporting, and proactive risk management—all in one platform.
+        </p>
+
+        <!-- 3D Logo Element -->
+        <div class="logo-container fade-in-up" style="animation-delay: 0.3s;">
+            <div class="radar-ring radar-1"></div>
+            <div class="radar-ring radar-2"></div>
+            <div class="radar-ring radar-3"></div>
+            
+            <div class="logo-3d-wrapper" id="logo3D">
+                <img src="~/image/VulneraScan-logo.png" alt="VulneraScan Logo 3D" class="logo-3d" />
+            </div>
+        </div>
+        
+        <div class="mt-5 fade-in-up" style="animation-delay: 0.5s;">
+            @if (!User?.Identity?.IsAuthenticated == true)
+            {
+                <a href="@Url.Action("Register", "Account")" class="btn-vs-primary me-3 mb-3">
+                    <i class="bi bi-rocket me-2"></i> Get Started Free
+                </a>
+                <a href="@Url.Action("Login", "Account")" class="btn-vs-secondary mb-3">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Login to Portal
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("Index", "Dashboard")" class="btn-vs-primary me-3 mb-3">
+                    <i class="bi bi-speedometer2 me-2"></i> Go to Dashboard
+                </a>
+                <a href="@Url.Action("Index", "Scan")" class="btn-vs-secondary mb-3">
+                    <i class="bi bi-search me-2"></i> Start New Scan
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 col-6 stat-item fade-in-up">
+                <div class="stat-number" data-target="5000">0</div>
+                <div class="stat-text">Vulnerability Scans</div>
+            </div>
+            <div class="col-md-3 col-6 stat-item fade-in-up" style="animation-delay: 0.1s;">
+                <div class="stat-number" data-target="99.9" data-suffix="%">0</div>
+                <div class="stat-text">Detection Accuracy</div>
+            </div>
+            <div class="col-md-3 col-6 stat-item fade-in-up" style="animation-delay: 0.2s;">
+                <div class="stat-number" data-target="24" data-suffix="/7">0</div>
+                <div class="stat-text">Security Monitoring</div>
+            </div>
+            <div class="col-md-3 col-6 stat-item fade-in-up" style="animation-delay: 0.3s;">
+                <div class="stat-number">100%</div>
+                <div class="stat-text">Enterprise Ready</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="section-padding">
+    <div class="container">
+        <h2 class="section-title fade-in-up">Supported Scan Types</h2>
+        <p class="section-subtitle fade-in-up">Comprehensive vulnerability assessment tools designed to uncover hidden risks in your infrastructure.</p>
+        
+        <div class="row g-4">
+            <div class="col-md-4 fade-in-up">
+                <div class="vs-card">
+                    <div class="vs-icon-container">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <h3 class="vs-card-title">Port Scanning</h3>
+                    <p class="vs-card-text">Comprehensive port scanning and service detection on targets. Identify open ports and active services with intelligent fingerprinting.</p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-up" style="animation-delay: 0.1s;">
+                <div class="vs-card">
+                    <div class="vs-icon-container">
+                        <i class="bi bi-bug"></i>
+                    </div>
+                    <h3 class="vs-card-title">Vulnerability Detection</h3>
+                    <p class="vs-card-text">Detect and classify security vulnerabilities automatically based on CVE databases and zero-day threat intelligence.</p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-up" style="animation-delay: 0.2s;">
+                <div class="vs-card">
+                    <div class="vs-icon-container">
+                        <i class="bi bi-file-pdf"></i>
+                    </div>
+                    <h3 class="vs-card-title">Professional Reports</h3>
+                    <p class="vs-card-text">Generate detailed, actionable PDF reports tailored for both technical teams and executive stakeholders with clear remediation steps.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="section-padding" style="background: rgba(15, 23, 42, 0.5);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0 fade-in-up">
+                <h2 class="section-title text-start">How VulneraScan Works</h2>
+                <p class="section-subtitle text-start mb-5">A streamlined four-step process to secure your network from emerging threats.</p>
+                
+                <div class="step-container">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Define Targets</h4>
+                            <p>Input your IP addresses, domains, or subnet ranges to scan.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Execute Scan</h4>
+                            <p>Our intelligent engine probes the targets for open services and weaknesses.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Analyze Results</h4>
+                            <p>Vulnerabilities are automatically classified by severity (High, Medium, Low).</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Remediate & Report</h4>
+                            <p>Generate comprehensive PDF reports with actionable mitigation strategies.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 fade-in-up" style="animation-delay: 0.2s;">
+                <div class="vs-card p-4" style="border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="text-white m-0">Dashboard Preview</h5>
+                        <div class="badge bg-success">Live Status</div>
+                    </div>
+                    <div class="progress mb-3" style="height: 10px; background: rgba(255,255,255,0.1);">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 75%"></div>
+                    </div>
+                    <p class="text-muted small mb-4">Scan in progress: 192.168.1.0/24 (75% Complete)</p>
+                    
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 rounded" style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.2);">
+                                <h3 class="text-danger mb-0">12</h3>
+                                <span class="small text-muted">High Risk</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded" style="background: rgba(234, 88, 12, 0.1); border: 1px solid rgba(234, 88, 12, 0.2);">
+                                <h3 class="text-warning mb-0">34</h3>
+                                <span class="small text-muted">Medium Risk</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA Section -->
+<section class="section-padding">
+    <div class="container">
+        <div class="cta-section fade-in-up">
+            <div class="cta-content">
+                <h2 class="hero-title mb-4" style="font-size: 3rem;">Ready to Secure Your Infrastructure?</h2>
+                <p class="hero-subtitle mb-5 text-white">Join thousands of enterprises trusting VulneraScan for their proactive security needs.</p>
+                
+                @if (!User?.Identity?.IsAuthenticated == true)
+                {
+                    <a href="@Url.Action("Register", "Account")" class="btn-vs-primary btn-lg">
+                        <i class="bi bi-shield-lock me-2"></i> Start Your Free Trial
+                    </a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Index", "Scan")" class="btn-vs-primary btn-lg">
+                        <i class="bi bi-search me-2"></i> Start Scanning Now
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Custom Footer for Landing Page -->
+<footer class="landing-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <a href="#" class="footer-brand">
+                    <img src="~/image/VulneraScan-logo.png" alt="Logo" />
+                    VulneraScan
+                </a>
+                <p class="text-muted mb-4" style="max-width: 300px;">
+                    Enterprise-grade vulnerability assessment portal designed for modern security teams.
+                </p>
+                <div class="d-flex">
+                    <a href="#" class="social-icon"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-github"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-6">
+                <h5 class="text-white mb-4">Platform</h5>
+                <a href="#" class="footer-link">Features</a>
+                <a href="#" class="footer-link">Pricing</a>
+                <a href="#" class="footer-link">Integrations</a>
+                <a href="#" class="footer-link">Changelog</a>
+            </div>
+            <div class="col-lg-2 col-6">
+                <h5 class="text-white mb-4">Resources</h5>
+                <a href="#" class="footer-link">Documentation</a>
+                <a href="#" class="footer-link">API Reference</a>
+                <a href="#" class="footer-link">Blog</a>
+                <a href="#" class="footer-link">Community</a>
+            </div>
+            <div class="col-lg-4">
+                <h5 class="text-white mb-4">Contact</h5>
+                <p class="text-muted mb-2"><i class="bi bi-envelope me-2"></i> support@vulnerascan.com</p>
+                <p class="text-muted mb-2"><i class="bi bi-geo-alt me-2"></i> 123 Security Blvd, Cyber City</p>
+            </div>
+        </div>
+        <div class="border-top mt-5 pt-4" style="border-color: rgba(255,255,255,0.05) !important;">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <p class="text-muted mb-0">&copy; @DateTime.Now.Year VulneraScan. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="@Url.Action("PrivacyPolicy", "Home")" class="text-muted text-decoration-none me-3">Privacy Policy</a>
+                    <a href="@Url.Action("TermsAndConditions", "Home")" class="text-muted text-decoration-none">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup Intersection Observer for fade-in animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        // Trigger counter animation if it's a stat item
+                        if (entry.target.classList.contains('stat-item')) {
+                            const counter = entry.target.querySelector('.stat-number');
+                            if (counter && counter.getAttribute('data-target')) {
+                                animateValue(counter, 0, parseFloat(counter.getAttribute('data-target')), 2000, counter.getAttribute('data-suffix') || '');
+                                counter.removeAttribute('data-target'); // Prevent re-animating
+                            }
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in-up').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Counter Animation Function
+            function animateValue(obj, start, end, duration, suffix) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    // Use easeOutQuart easing
+                    const easeProgress = 1 - Math.pow(1 - progress, 4);
+                    
+                    let currentVal = start + easeProgress * (end - start);
+                    
+                    // Format appropriately (integers vs decimals)
+                    if (end % 1 === 0) {
+                        obj.innerHTML = Math.floor(currentVal) + (end > 1000 ? '+' : '') + suffix;
+                    } else {
+                        obj.innerHTML = currentVal.toFixed(1) + suffix;
+                    }
+                    
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        obj.innerHTML = (end % 1 === 0 ? end + (end > 1000 ? '+' : '') : end) + suffix;
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+
+            // Navbar scroll effect
+            const navbar = document.querySelector('.navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+
+            // 3D Logo Mouse Tracking
+            const logoWrapper = document.getElementById('logo3D');
+            if (logoWrapper) {
+                document.addEventListener('mousemove', function(e) {
+                    const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+                    const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                    logoWrapper.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+                });
+                
+                // Reset on mouse leave
+                document.addEventListener('mouseleave', function() {
+                    logoWrapper.style.transform = `rotateY(0deg) rotateX(0deg)`;
+                });
+            }
+        });
+    </script>
+}

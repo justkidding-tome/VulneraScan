@@ -1,0 +1,68 @@
+@model IEnumerable<VulneraScan.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Archived Users";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-archive me-2"></i>Archived Users</h2>
+            <p class="text-muted mb-0">Review and restore archived user accounts.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Archive
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Created</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">@user.FullName</div>
+                            </td>
+                            <td>
+                                @user.Email
+                            </td>
+                            <td>
+                                <small>@user.CreatedAt.ToString("g")</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">Archived</span>
+                            </td>
+                            <td>
+                                <form method="post" asp-action="RestoreUser" asp-route-id="@user.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to restore this record?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No archived users found.
+        </div>
+    }
+</div>

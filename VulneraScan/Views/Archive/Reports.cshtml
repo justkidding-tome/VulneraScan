@@ -1,0 +1,68 @@
+@model IEnumerable<VulneraScan.Models.ScanReport>
+
+@{
+    ViewData["Title"] = "Archived Reports";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-archive me-2"></i>Archived Reports</h2>
+            <p class="text-muted mb-0">Review and restore archived security reports.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Archive
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Report Title</th>
+                        <th>Target</th>
+                        <th>Generated</th>
+                        <th>Owner</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@report.Title</strong>
+                            </td>
+                            <td>
+                                <small>@report.ScanTarget?.TargetUrl</small>
+                            </td>
+                            <td>
+                                <small>@report.GeneratedAt.ToString("g")</small>
+                            </td>
+                            <td>
+                                <small>@(report.User?.FullName ?? report.User?.UserName ?? report.UserId)</small>
+                            </td>
+                            <td>
+                                <form method="post" asp-action="RestoreReport" asp-route-id="@report.Id" style="display: inline;" onsubmit="return confirm('Are you sure you want to restore this record?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No archived reports found.
+        </div>
+    }
+</div>

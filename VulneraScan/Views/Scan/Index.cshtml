@@ -1,0 +1,58 @@
+@model VulneraScan.ViewModels.Scan.ScanTargetViewModel
+
+@{
+    ViewData["Title"] = "New Vulnerability Scan";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="bi bi-search me-2"></i>Submit Target for Scanning</h3>
+                </div>
+                <div class="card-body">
+                    
+
+                    <form method="post" asp-action="SubmitTarget">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="TargetUrl" class="form-label">Enter Target URL / IP Address / Domain</label>
+                            <input asp-for="TargetUrl" class="form-control form-control-lg" placeholder="e.g., https://example.com, 192.168.1.X, example.com">
+                            <small class="form-text text-muted">
+                                Supports: URLs (http/https), IPv4 addresses, domain names
+                            </small>
+                            <span asp-validation-for="TargetUrl" class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Note:</strong> The following are not permitted:
+                            <ul class="mb-0 mt-2">
+                                <li>Localhost (127.0.0.1, localhost)</li>
+                                <li>Private/Internal networks (10.x.x.x, 192.168.x.x, 172.16.x.x)</li>
+                                <li>Extremely long URLs (&gt;2048 characters)</li>
+                            </ul>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-play-circle me-2"></i>Start Scan
+                        </button>
+                    </form>
+
+                    <hr class="my-4" />
+
+                    <h5>Recent Scans</h5>
+                    <a href="@Url.Action("List", "Scan")" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-list me-2"></i>View All My Scans
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

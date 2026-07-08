@@ -1,0 +1,12 @@
+@model string
+@{
+    var status = Model ?? string.Empty;
+    var color = status switch
+    {
+        "Pending" => "#f0ad4e", // Yellow/Orange
+        "In Progress" => "#0275d8", // Blue
+        "Completed" => "#5cb85c", // Green
+        _ => "#000000"
+    };
+}
+<span style="color:@color">@status</span>

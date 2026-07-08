@@ -1,0 +1,194 @@
+@model VulneraScan.ViewModels.Report.ReportDetailViewModel
+
+@{
+    ViewData["Title"] = "Report Detail";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+        <div>
+            <h2 class="mb-1">@Model.Report.Title</h2>
+            <p class="text-muted mb-0">Target: @Model.Report.ScanTarget.TargetUrl</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="List" asp-controller="Report" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Reports
+            </a>
+            <form method="post" asp-action="DownloadPdf" asp-controller="Report" asp-route-id="@Model.Report.Id" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-secondary">
+                    <i class="bi bi-download me-2"></i>PDF
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Report Summary</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-5">Risk Label</dt>
+                        <dd class="col-7">
+                            <span class="badge bg-@(Model.Report.RiskLabel == VulneraScan.Models.Enums.RiskLabel.High ? "danger" : Model.Report.RiskLabel == VulneraScan.Models.Enums.RiskLabel.Medium ? "warning" : "success")">
+                                @Model.Report.RiskLabel
+                            </span>
+                        </dd>
+
+                        <dt class="col-5">Risk Score</dt>
+                        <dd class="col-7">@Model.Report.RiskScore</dd>
+
+                        <dt class="col-5">Generated</dt>
+                        <dd class="col-7">@Model.Report.GeneratedAt.ToString("g")</dd>
+
+                        <dt class="col-5">Duration</dt>
+                        <dd class="col-7">@(Model.ScanDuration.HasValue ? $"{Model.ScanDuration.Value.TotalMinutes:F1} min" : "Not available")</dd>
+                    </dl>
+                    <hr />
+                    <p class="mb-0">@Model.Report.Summary</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Vulnerability Severity</h5>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <div class="fs-2 fw-bold text-danger">@Model.HighCount</div>
+                                <div>High</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <div class="fs-2 fw-bold text-warning">@Model.MediumCount</div>
+                                <div>Medium</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <div class="fs-2 fw-bold text-info">@Model.LowCount</div>
+                                <div>Low</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Open Ports</h5>
+                    @if (Model.PortResults.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Port</th>
+                                        <th>Status</th>
+                                        <th>Service</th>
+                                        <th>Risk</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var port in Model.PortResults.OrderBy(p => p.PortNumber))
+                                    {
+                                        <tr>
+                                            <td>@port.PortNumber</td>
+                                            <td>@port.Status</td>
+                                            <td>@port.ServiceName</td>
+                                            <td>@port.RiskLevel</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No port results available.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Discovered Services</h5>
+                    @if (Model.DiscoveredServices.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Version</th>
+                                        <th>Port</th>
+                                        <th>Protocol</th>
+                                        <th>Risk</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var service in Model.DiscoveredServices.OrderBy(s => s.Port))
+                                    {
+                                        <tr>
+                                            <td>@service.ServiceName</td>
+                                            <td>@(string.IsNullOrWhiteSpace(service.Version) ? "-" : service.Version)</td>
+                                            <td>@service.Port</td>
+                                            <td>@service.Protocol</td>
+                                            <td>@service.RiskLevel</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No services discovered.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Vulnerabilities</h5>
+                    @if (Model.Vulnerabilities.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Severity</th>
+                                        <th>Category</th>
+                                        <th>Affected Component</th>
+                                        <th>Recommendation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var vulnerability in Model.Vulnerabilities)
+                                    {
+                                        <tr>
+                                            <td>@vulnerability.Name</td>
+                                            <td>@vulnerability.SeverityLevel</td>
+                                            <td>@vulnerability.Category</td>
+                                            <td>@vulnerability.AffectedComponent</td>
+                                            <td>@(vulnerability.Recommendation?.Description ?? "No recommendation")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No vulnerabilities found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

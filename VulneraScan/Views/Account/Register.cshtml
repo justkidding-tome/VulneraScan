@@ -1,0 +1,196 @@
+@model VulneraScan.ViewModels.Account.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Enterprise Registration";
+    var modelErrors = ViewData.ModelState.TryGetValue(string.Empty, out var modelState) 
+        ? modelState.Errors 
+        : new Microsoft.AspNetCore.Mvc.ModelBinding.ModelErrorCollection();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" />
+}
+
+<script>
+    document.body.classList.add('auth-page');
+</script>
+
+<div class="auth-layout">
+    <!-- Left Side: Authentication Form -->
+    <div class="auth-form-side">
+        <div class="auth-container" style="max-width: 520px;">
+            
+            <div class="auth-logo-wrapper" style="margin-bottom: 1.5rem; width: 100px; height: 100px;">
+                <div class="auth-radar"></div>
+                <a href="@Url.Action("Index", "Home")">
+                    <img src="~/image/VulneraScan-logo.png" alt="VulneraScan 3D Logo" class="auth-logo" style="max-width: 60px;" />
+                </a>
+            </div>
+
+            <div class="text-center mb-4">
+                <div class="auth-badge">
+                    <i class="bi bi-shield-plus me-1"></i> Secure Registration
+                </div>
+                <div class="text-muted small mb-1 text-uppercase tracking-wide">Join VulneraScan</div>
+                <h1 class="auth-title" style="font-size: 2rem;">Create Your Account</h1>
+                <p class="auth-subtitle mb-3">Start protecting your network with enterprise-grade security.</p>
+            </div>
+
+            @if (modelErrors.Any())
+            {
+                <div class="auth-alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <div>
+                        @foreach (var error in modelErrors)
+                        {
+                            <div class="small">@error.ErrorMessage</div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <form method="post" asp-action="Register" id="registerForm">
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="auth-input-group">
+                            <label asp-for="FullName">Full Name</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Enter full name" required>
+                            <i class="bi bi-person auth-input-icon"></i>
+                            <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="auth-input-group">
+                            <label asp-for="Email">Email Address</label>
+                            <input asp-for="Email" class="form-control" type="email" placeholder="Enter email" required autocomplete="email">
+                            <i class="bi bi-envelope auth-input-icon"></i>
+                            <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-input-group mb-2">
+                    <label asp-for="Password">Password</label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="At least 8 characters" required autocomplete="new-password" id="passwordField">
+                    <i class="bi bi-key auth-input-icon"></i>
+                    <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                </div>
+                
+                <!-- Password Strength Meter -->
+                <div class="progress mb-3" style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px;">
+                    <div id="pwdStrengthBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="form-text text-muted d-block mb-3" style="margin-top: -10px;">Must contain uppercase, lowercase, digit, and special character</small>
+
+                <div class="auth-input-group">
+                    <label asp-for="ConfirmPassword">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Re-enter password" required autocomplete="new-password">
+                    <i class="bi bi-shield-check auth-input-icon"></i>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="custom-auth-check mb-4 mt-2">
+                    <input asp-for="AgreeToTerms" class="form-check-input" type="checkbox" id="agreeToTerms">
+                    <label class="form-check-label" for="agreeToTerms">
+                        I have read and agree to the 
+                        <a href="@Url.Action("TermsAndConditions", "Home")" target="_blank" class="auth-link">Terms</a>
+                        and 
+                        <a href="@Url.Action("PrivacyPolicy", "Home")" target="_blank" class="auth-link">Privacy Policy</a>
+                    </label>
+                    <span asp-validation-for="AgreeToTerms" class="text-danger small d-block w-100 mt-1"></span>
+                </div>
+
+                <button type="submit" class="btn-auth-primary mb-3" id="submitBtn">
+                    <span class="submit-text">Create Secure Account</span>
+                    <span class="spinner-border spinner-border-sm ms-2 d-none" id="submitSpinner" role="status" aria-hidden="true"></span>
+                </button>
+
+                <div class="text-center">
+                    <p class="text-muted small">
+                        Already have an account? <a asp-action="Login" asp-controller="Account" class="auth-link">Login here</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Side: Security Info Panel -->
+    <div class="auth-info-side">
+        <div class="auth-bg-grid"></div>
+        
+        <div class="security-features">
+            <div class="text-center mb-4">
+                <i class="bi bi-cpu text-info" style="font-size: 3rem;"></i>
+                <h3 class="text-white mt-2 mb-1">Secure by Design</h3>
+                <p class="text-muted small">Your account is created with default secure settings protecting your data immediately.</p>
+            </div>
+            
+            <div class="security-feature-item">
+                <div class="sf-icon"><i class="bi bi-hash"></i></div>
+                <div class="sf-content">
+                    <h4>Secure Password Hashing</h4>
+                    <p>We use PBKDF2 with HMAC-SHA256 and salt to securely store passwords.</p>
+                </div>
+            </div>
+            
+            <div class="security-feature-item">
+                <div class="sf-icon"><i class="bi bi-shield-slash"></i></div>
+                <div class="sf-content">
+                    <h4>XSS & CSRF Protection</h4>
+                    <p>All forms use anti-forgery tokens to prevent cross-site request forgery attacks.</p>
+                </div>
+            </div>
+            
+            <div class="security-feature-item">
+                <div class="sf-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="sf-content">
+                    <h4>Automatic Session Timeout</h4>
+                    <p>Idle sessions are securely terminated to prevent unauthorized access.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Simple password strength meter visualization
+        document.getElementById('passwordField').addEventListener('input', function() {
+            const val = this.value;
+            let strength = 0;
+            
+            if (val.length >= 8) strength += 25;
+            if (val.match(/[A-Z]/)) strength += 25;
+            if (val.match(/[0-9]/)) strength += 25;
+            if (val.match(/[^a-zA-Z0-9]/)) strength += 25;
+            
+            const bar = document.getElementById('pwdStrengthBar');
+            bar.style.width = strength + '%';
+            
+            if (strength <= 25) {
+                bar.className = 'progress-bar bg-danger';
+            } else if (strength <= 50) {
+                bar.className = 'progress-bar bg-warning';
+            } else if (strength <= 75) {
+                bar.className = 'progress-bar bg-info';
+            } else {
+                bar.className = 'progress-bar bg-success';
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function() {
+            if($(this).valid()) {
+                const btn = document.getElementById('submitBtn');
+                const spinner = document.getElementById('submitSpinner');
+                const text = btn.querySelector('.submit-text');
+                
+                btn.disabled = true;
+                spinner.classList.remove('d-none');
+                text.textContent = 'Creating Account...';
+            }
+        });
+    </script>
+}

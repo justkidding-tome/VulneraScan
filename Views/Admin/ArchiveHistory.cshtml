@@ -1,0 +1,59 @@
+@model VulneraScan.ViewModels.Report.ReportListViewModel
+@{
+    ViewData["Title"] = "Archive History";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Archive History (Admin)</h1>
+        <p class="text-muted mb-0">View and restore archived reports.</p>
+    </div>
+    <a asp-action="List" asp-controller="Report" class="btn btn-outline-primary">Back to Reports</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Owner</th>
+                    <th>Target</th>
+                    <th>Status</th>
+                    <th>Archived At</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Reports.Any())
+                {
+                    foreach (var report in Model.Reports)
+                    {
+                        var ownerName = report.User?.FullName ?? report.User?.Email ?? "Unknown";
+                        <tr>
+                            <td class="fw-semibold">@report.Title</td>
+                            <td>@ownerName</td>
+                            <td>@report.ScanTarget?.TargetUrl</td>
+                            @await Html.PartialAsync("_StatusText", report.ScanTarget?.ScanStatus.ToString() ?? "Unknown")
+                            <td>@(report.ArchivedAt?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                            <td class="text-end">
+                                <a asp-action="Detail" asp-controller="Report" asp-route-id="@report.Id" class="btn btn-sm btn-outline-primary me-1">View</a>
+                                <form asp-action="Restore" asp-controller="Report" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@report.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Restore report @report.Id?');">Restore</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No archived reports available.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

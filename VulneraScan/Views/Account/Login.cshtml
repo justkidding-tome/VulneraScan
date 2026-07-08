@@ -1,0 +1,174 @@
+@model VulneraScan.ViewModels.Account.LoginViewModel
+
+@{
+    ViewData["Title"] = "Enterprise Login";
+    // Get only model-level errors (where key is empty)
+    var modelErrors = ViewData.ModelState.TryGetValue(string.Empty, out var modelState) 
+        ? modelState.Errors 
+        : new Microsoft.AspNetCore.Mvc.ModelBinding.ModelErrorCollection();
+        
+    var warningErrors = modelErrors.Where(e => e.ErrorMessage.Contains("attempt(s) remaining")).ToList();
+    var dangerErrors = modelErrors.Where(e => !e.ErrorMessage.Contains("attempt(s) remaining")).ToList();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" />
+}
+
+<script>
+    document.body.classList.add('auth-page');
+</script>
+
+<div class="auth-layout">
+    <!-- Left Side: Authentication Form -->
+    <div class="auth-form-side">
+        <div class="auth-container">
+            
+            <div class="auth-logo-wrapper">
+                <div class="auth-radar"></div>
+                <a href="@Url.Action("Index", "Home")">
+                    <img src="~/image/VulneraScan-logo.png" alt="VulneraScan 3D Logo" class="auth-logo" />
+                </a>
+            </div>
+
+            <div class="text-center mb-4">
+                <div class="auth-badge">
+                    <i class="bi bi-shield-lock me-1"></i> Enterprise Security
+                </div>
+                <div class="text-muted small mb-2 text-uppercase tracking-wide">Welcome Back</div>
+                <h1 class="auth-title">Secure Login</h1>
+                <p class="auth-subtitle">Access your vulnerability assessment dashboard securely.</p>
+            </div>
+
+            @if (warningErrors.Any())
+            {
+                <div class="auth-alert auth-alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <div>
+                        <strong>Security Warning:</strong>
+                        @foreach (var error in warningErrors)
+                        {
+                            <div class="mt-1 small">@error.ErrorMessage</div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (dangerErrors.Any())
+            {
+                <div class="auth-alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <div>
+                        @foreach (var error in dangerErrors)
+                        {
+                            <div class="small">@error.ErrorMessage</div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <form method="post" asp-action="Login" id="loginForm">
+
+                <div class="auth-input-group">
+                    <label asp-for="Email">Email Address</label>
+                    <input asp-for="Email" class="form-control" type="email" placeholder="Enter your email" required autocomplete="email">
+                    <i class="bi bi-envelope auth-input-icon"></i>
+                    <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="auth-input-group">
+                    <label asp-for="Password">Password</label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" required autocomplete="current-password" id="passwordField">
+                    <i class="bi bi-key auth-input-icon"></i>
+                    <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="custom-auth-check">
+                        <input asp-for="RememberMe" class="form-check-input" type="checkbox" id="rememberMe">
+                        <label asp-for="RememberMe" class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="auth-link small">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-auth-primary mb-4" id="submitBtn">
+                    <span class="submit-text">Sign In securely</span>
+                    <span class="spinner-border spinner-border-sm ms-2 d-none" id="submitSpinner" role="status" aria-hidden="true"></span>
+                </button>
+
+                <div class="text-center mb-4">
+                    <p class="text-muted small">
+                        Don't have an account? <a asp-action="Register" asp-controller="Account" class="auth-link">Register here</a>
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <small>
+                        <a href="@Url.Action("TermsAndConditions", "Home")" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none hover-white transition-colors">
+                            Terms & Conditions
+                        </a>
+                        <span class="text-muted mx-2">•</span>
+                        <a href="@Url.Action("PrivacyPolicy", "Home")" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none hover-white transition-colors">
+                            Privacy Policy
+                        </a>
+                    </small>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Side: Security Info Panel -->
+    <div class="auth-info-side">
+        <div class="auth-bg-grid"></div>
+        
+        <div class="security-features">
+            <div class="text-center mb-4">
+                <i class="bi bi-shield-check text-info" style="font-size: 3rem;"></i>
+                <h3 class="text-white mt-2 mb-1">Enterprise Grade Security</h3>
+                <p class="text-muted small">Your infrastructure data is protected by industry-leading security protocols.</p>
+            </div>
+            
+            <div class="security-feature-item">
+                <div class="sf-icon"><i class="bi bi-lock-fill"></i></div>
+                <div class="sf-content">
+                    <h4>End-to-End Encryption</h4>
+                    <p>All authentication attempts and session data are encrypted using TLS 1.3.</p>
+                </div>
+            </div>
+            
+            <div class="security-feature-item">
+                <div class="sf-icon"><i class="bi bi-person-badge-fill"></i></div>
+                <div class="sf-content">
+                    <h4>Role-Based Access Control</h4>
+                    <p>Granular RBAC ensures users only access resources they are authorized for.</p>
+                </div>
+            </div>
+            
+            <div class="security-feature-item">
+                <div class="sf-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                <div class="sf-content">
+                    <h4>Brute Force Protection</h4>
+                    <p>Accounts are automatically locked after successive failed login attempts.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            if($(this).valid()) {
+                const btn = document.getElementById('submitBtn');
+                const spinner = document.getElementById('submitSpinner');
+                const text = btn.querySelector('.submit-text');
+                
+                btn.disabled = true;
+                spinner.classList.remove('d-none');
+                text.textContent = 'Authenticating...';
+            }
+        });
+    </script>
+}
